@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_advanced_networkimage_2/provider.dart';
 import 'package:flutter_advanced_networkimage_2/transition.dart';
+import '../DetailPage/DetailPage.dart';
 
 class HotPage extends StatefulWidget {
   @override
@@ -59,7 +61,7 @@ Future<void> _loadMoreData() async {
   int _getCrossAxisCount(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     if (screenWidth > 600) {
-      return 4;
+      return 6;
     } else {
       return 2;
     }
@@ -82,76 +84,101 @@ Future<void> _loadMoreData() async {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+        title: const Text('Hot',
+        style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'This Settings',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('This Settings')));
+            },
+            color: Color.fromRGBO(135, 182, 255, 1),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: refreshData,
-        child: GridView.builder(
-        controller: _scrollController,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: _getCrossAxisCount(context),
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-          ),
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            return AspectRatio(
-              aspectRatio: 1.0,
-              child: Container(
-                decoration: BoxDecoration(
+        child: StaggeredGridView.countBuilder(
+          controller: _scrollController,
+          crossAxisCount: _getCrossAxisCount(context),
+          crossAxisSpacing: 8.0,
+          mainAxisSpacing: 8.0,
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              double aspectRatio = posts[index]['sample']['width'] / posts[index]['sample']['height'];
+              return AspectRatio(
+                aspectRatio: aspectRatio,
+                child:InkWell(
+                onTap: (){
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailPage(imageId: posts[index]['id'].toString())
+                    ),
+                  );
+                },           
+                 child: Container(
+                  decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(5),
                   color: Color.fromRGBO(37, 71, 123, 1),
-                ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: TransitionToImage(
-                        image: AdvancedNetworkImage(
-                          posts[index]['preview']['url'],
-                          loadedCallback: () {
-                            print('Done');
+                  ),     
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: TransitionToImage(
+                          image: AdvancedNetworkImage(
+                            posts[index]['sample']['url'],
+                            loadedCallback: (){
+                              print('Done');
+                            },
+                            loadFailedCallback: (){
+                              print('what happen your internet');
+                            },
+                            useDiskCache: true, // Gunakan cache untuk mempercepat pengambilan gambar
+                          ),
+                          fit: BoxFit.cover,
+                          loadingWidgetBuilder: (_, double progress, __) {
+                            return Center(
+                              child: CircularProgressIndicator(value: progress),
+                            );
                           },
-                          loadFailedCallback: () {
-                            print('What happened to your internet?');
-                          },
-                          useDiskCache: true,
+                          placeholder: const Icon(Icons.image),
                         ),
-                        fit: BoxFit.cover,
-                        loadingWidgetBuilder: (_, double progress, __) {
-                          return Center(
-                            child: CircularProgressIndicator(value: progress),
-                          );
-                        },
-                        placeholder: const Icon(Icons.image),
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_upward,
-                            color: Colors.green[200],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.arrow_upward,
+                            color: Colors.green[200],),
+                            onPressed: () {
+                              // Aksi ketika tombol upvote ditekan
+                            },
                           ),
-                          onPressed: () {
-                            // Aksi ketika tombol upvote ditekan
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.arrow_downward,
-                            color: Colors.red[200],
+                          IconButton(
+                            icon: Icon(Icons.arrow_downward,
+                            color: Colors.red[200],),
+                            onPressed: () {
+                              // Aksi ketika tombol downvote ditekan
+                            },
                           ),
-                          onPressed: () {
-                            // Aksi ketika tombol downvote ditekan
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
+                ),
+              );
+            },
+            staggeredTileBuilder: (int index) {
+                new StaggeredTile.count(2, index.isEven ? 2 : 1);
+                 return StaggeredTile.fit(1);
+             },
+          ),
       ),
     );
   }
