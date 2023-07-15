@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:flutter_advanced_networkimage_2/provider.dart';
 import 'package:flutter_advanced_networkimage_2/transition.dart';
 import 'Info.dart';
+import 'Fullimage.dart';
 import 'Description.dart';
+import 'Artist.dart';
 
 class DesktopView extends StatefulWidget {
   final String imageId;
@@ -66,45 +68,51 @@ class _DesktopViewState extends State<DesktopView> {
       body: posts.isNotEmpty
           ? Row(
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Color.fromRGBO(37, 71, 123, 1),
-                  ),
-                  child: TransitionToImage(
-                    image: AdvancedNetworkImage(
-                      posts['file']['url'],
-                      loadedCallback: () {
-                        print('Done');
-                      },
-                      loadFailedCallback: () {
-                        print('What happened to your internet');
-                      },
-                      useDiskCache: true,
+                InkWell(
+                  onTap: () {
+                    // Pindah ke halaman FullImagePage ketika gambar diklik
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FullImagePage(
+                          imageUrl: posts['file']['url'],
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Color.fromRGBO(37, 71, 123, 1),
                     ),
-                    fit: BoxFit.cover,
-                    loadingWidgetBuilder: (_, double progress, __) {
-                      return Center(
-                        child: CircularProgressIndicator(value: progress),
-                      );
-                    },
-                    placeholder: const Icon(Icons.image),
+                    child: TransitionToImage(
+                      image: AdvancedNetworkImage(
+                        posts['file']['url'],
+                        loadedCallback: () {
+                          print('Done');
+                        },
+                        loadFailedCallback: () {
+                          print('What happened to your internet');
+                        },
+                        useDiskCache: true,
+                      ),
+                      fit: BoxFit.cover,
+                      loadingWidgetBuilder: (_, double progress, __) {
+                        return Center(
+                          child: CircularProgressIndicator(value: progress),
+                        );
+                      },
+                      placeholder: const Icon(Icons.image),
+                    ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Description(descriptions: posts['description']),
-                      Info(
-                          description: posts['description'],
-                          artist: posts['tags']['artist'].toString()),
-                    ],
-                  ),
-                )
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                    ),
+                    child: Info(
+                        description: posts['description'],
+                        artist: posts['tags']['artist'].toString()))
               ],
             )
           : CircularProgressIndicator(),

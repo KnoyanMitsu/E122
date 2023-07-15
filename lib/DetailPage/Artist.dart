@@ -9,7 +9,6 @@ final String artists;
   Widget build(BuildContext context) {
   return Expanded(
       child: Container(
-        height: 40,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
               color: Color.fromRGBO(37, 71, 123, 1),

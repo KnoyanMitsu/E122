@@ -50,53 +50,76 @@ class _FullImagePageState extends State<FullImagePage> {
   Future<void> _saveImageToDevice() async {
     try {
       final String appName = 'E112';
-      final String picturesDirectory = '/storage/emulated/0/Pictures/$appName';
-      await Directory(picturesDirectory).create(recursive: true);
-      final String fileName = widget.imageUrl.split('/').last;
-      final File imageFile = File('$picturesDirectory/$fileName');
-      await imageFile.writeAsBytes(_imageBytes!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Image saved successfully')),
-      );
+      Directory appDir;
+      if (Platform.isAndroid) {
+        final String picturesDirectory =
+            '/storage/emulated/0/Pictures/$appName';
+        await Directory(picturesDirectory).create(recursive: true);
+        final String fileName = widget.imageUrl.split('/').last;
+        final File imageFile = File('$picturesDirectory/$fileName');
+        await imageFile.writeAsBytes(_imageBytes!);
+        var location = picturesDirectory;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image saved to: $location')),
+        );
+      } else {
+        // Jika di platform lain, gunakan path aplikasi
+        final directory = await getDownloadsDirectory();
+        final String picturesDirectory = '${directory!.path}/Pictures/$appName';
+        await Directory(picturesDirectory).create(recursive: true);
+        final String fileName = widget.imageUrl.split('/').last;
+        final File imageFile = File('$picturesDirectory/$fileName');
+        await imageFile.writeAsBytes(_imageBytes!);
+        var location = picturesDirectory;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image saved to: $location')),
+        );
+      }
     } catch (e) {
       print('Failed to save image: $e');
     }
   }
 
   Future<void> _requestPermission() async {
-    DeviceInfoPlugin plugin = DeviceInfoPlugin();
-    AndroidDeviceInfo android = await plugin.androidInfo;
-    if (android.version.sdkInt < 33) {
-      if (await Permission.storage.request().isGranted) {
-        setState(() {
-          _saveImageToDevice();
-        });
-      } else if (await Permission.storage.request().isPermanentlyDenied) {
-        await openAppSettings();
-      } else if (await Permission.audio.request().isDenied) {
-        setState(() {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Permission denied')),
-          );
-        });
+    if (Platform.isAndroid) {
+      DeviceInfoPlugin plugin = DeviceInfoPlugin();
+      AndroidDeviceInfo android = await plugin.androidInfo;
+      if (android.version.sdkInt < 33) {
+        if (await Permission.storage.request().isGranted) {
+          setState(() {
+            _saveImageToDevice();
+          });
+        } else if (await Permission.storage.request().isPermanentlyDenied) {
+          await openAppSettings();
+        } else if (await Permission.audio.request().isDenied) {
+          setState(() {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Permission denied')),
+            );
+          });
+        }
+      } else {
+        if (await Permission.photos.request().isGranted) {
+          setState(() {
+            _saveImageToDevice();
+          });
+        } else if (await Permission.photos.request().isPermanentlyDenied) {
+          await openAppSettings();
+        } else if (await Permission.photos.request().isDenied) {
+          setState(() {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Permission denied')),
+            );
+          });
+        }
       }
     } else {
-      if (await Permission.photos.request().isGranted) {
-        setState(() {
-          _saveImageToDevice();
-        });
-      } else if (await Permission.photos.request().isPermanentlyDenied) {
-        await openAppSettings();
-      } else if (await Permission.photos.request().isDenied) {
-        setState(() {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Permission denied')),
-          );
-        });
-      }
+      // Jika bukan Android, langsung lakukan penyimpanan gambar tanpa perlu izin
+      _saveImageToDevice();
     }
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -122,9 +145,15 @@ class _FullImagePageState extends State<FullImagePage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _imageBytes != null
-              ? Image.memory(
-                  _imageBytes!,
-                  fit: BoxFit.contain,
+              ? Center(
+                  // Center secara horizontal dan vertikal
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Image.memory(
+                      _imageBytes!,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                 )
               : const Center(child: Text('Failed to load image')),
     );

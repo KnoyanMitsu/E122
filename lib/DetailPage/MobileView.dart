@@ -4,13 +4,14 @@ import 'dart:convert';
 import 'package:flutter_advanced_networkimage_2/provider.dart';
 import 'package:flutter_advanced_networkimage_2/transition.dart';
 import 'Description.dart';
+import 'Artist.dart';
 import 'Fullimage.dart'; // Import halaman penuh gambar
 
 class MobileView extends StatefulWidget {
   final String imageId;
 
   const MobileView({Key? key, required this.imageId}) : super(key: key);
-  
+
   @override
   _MobileViewState createState() => _MobileViewState();
 }
@@ -26,6 +27,7 @@ class _MobileViewState extends State<MobileView> {
   }
 
   Map<String, dynamic> posts = {};
+  List<dynamic> artists = [];
   Future<void> fetchData() async {
     var urldata = Uri.parse('https://e926.net/posts/$imageId.json');
     var result = await http.get(urldata);
@@ -42,7 +44,7 @@ class _MobileViewState extends State<MobileView> {
   Future<void> refreshData() async {
     await fetchData();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,7 +73,7 @@ class _MobileViewState extends State<MobileView> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => FullImagePage(
-                          imageUrl: posts['sample']['url'],
+                          imageUrl: posts['file']['url'],
                         ),
                       ),
                     );
@@ -83,7 +85,7 @@ class _MobileViewState extends State<MobileView> {
                     ),
                     child: TransitionToImage(
                       image: AdvancedNetworkImage(
-                        posts['file']['url'],
+                        posts['sample']['url'],
                         loadedCallback: () {
                           print('Done');
                         },
@@ -103,10 +105,10 @@ class _MobileViewState extends State<MobileView> {
                   ),
                 ),
                 SizedBox(height: 16),
-                Description(descriptions: posts['description']),
+                      Artist(artists: posts['tags']['artist'].toString()),
+                      Description(descriptions: posts['description']),
               ],
             )
-            
           : CircularProgressIndicator(),
     );
   }
