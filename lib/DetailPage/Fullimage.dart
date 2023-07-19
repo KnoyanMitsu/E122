@@ -19,7 +19,7 @@ class FullImagePage extends StatefulWidget {
 class _FullImagePageState extends State<FullImagePage> {
   bool _isLoading = false;
   Uint8List? _imageBytes;
-
+  String? errorText;
   @override
   void initState() {
     super.initState();
@@ -142,20 +142,48 @@ class _FullImagePageState extends State<FullImagePage> {
               color: Color.fromRGBO(135, 182, 255, 1)),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _imageBytes != null
-              ? Center(
-                  // Center secara horizontal dan vertikal
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Image.memory(
-                      _imageBytes!,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                )
-              : const Center(child: Text('Failed to load image')),
+      body: errorText != null
+          ? buildErrorWidget() // Menampilkan widget pesan kesalahan
+          : _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _imageBytes != null
+                  ? Center(
+                      // Center secara horizontal dan vertikal
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Image.memory(
+                          _imageBytes!,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    )
+                  : const Center(child: Text('Failed to load image')),
+    );
+  }
+
+  Widget buildErrorWidget() {
+    return Container(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              errorText!,
+              style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  errorText = null; // Hapus pesan kesalahan dan coba lagi
+                });
+                _loadImage(); // Panggil fetchData() kembali
+              },
+              child: Text('Retry'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

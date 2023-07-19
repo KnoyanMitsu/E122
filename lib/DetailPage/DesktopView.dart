@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+
 import 'package:flutter_advanced_networkimage_2/provider.dart';
 import 'package:flutter_advanced_networkimage_2/transition.dart';
-import 'Info.dart';
+import 'package:scrolling_dulu/data/service.dart';
 import 'Fullimage.dart';
 import 'Description.dart';
 import 'Artist.dart';
@@ -19,7 +18,7 @@ class DesktopView extends StatefulWidget {
 
 class _DesktopViewState extends State<DesktopView> {
   late String imageId;
-
+  String? errorText;
   @override
   void initState() {
     super.initState();
@@ -29,17 +28,22 @@ class _DesktopViewState extends State<DesktopView> {
 
   Map<String, dynamic> posts = {};
   List<dynamic> artists = [];
+  String artist = "";
   Future<void> fetchData() async {
-    var urldata = Uri.parse('https://e926.net/posts/$imageId.json');
-    var result = await http.get(urldata);
-    if (result.statusCode == 200) {
-      var jsonData = json.decode(result.body);
+    try {
+      final data = await ApiServices.getDetail(imageId);
       setState(() {
-        posts = jsonData['post'];
-      }); // Tambahkan data baru ke daftar yang ada
-    } else {
-      print('lost connection. Code status: ${result.statusCode}');
-    }
+        posts = data;
+        artists = data['tags']['artist'];
+        String artistsAsString = artists.join(', ');
+        artist = artistsAsString;
+      });
+    } catch (e) {
+      setState(() {
+        posts = {}; // Atau tampilkan data kosong jika terjadi kesalahan
+        errorText = 'Something error: $e'; // Menampilkan pesan kesalahan
+      });
+    } // Tambahkan data baru ke daftar yang ada
   }
 
   Future<void> refreshData() async {
@@ -65,57 +69,100 @@ class _DesktopViewState extends State<DesktopView> {
           style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
         ),
       ),
-      body: posts.isNotEmpty
-          ? Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    // Pindah ke halaman FullImagePage ketika gambar diklik
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FullImagePage(
-                          imageUrl: posts['file']['url'],
+      body: errorText != null
+          ? buildErrorWidget() // Menampilkan widget pesan kesalahan
+          : posts.isNotEmpty
+              ? Row(
+                  children: [
+                    Flexible(
+                      flex: 1, // Proporsi gambar
+                      child: InkWell(
+                        onTap: () {
+                          // Pindah ke halaman FullImagePage ketika gambar diklik
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullImagePage(
+                                imageUrl: posts['file']['url'],
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Color.fromRGBO(37, 71, 123, 1),
+                          ),
+                          child: TransitionToImage(
+                            image: AdvancedNetworkImage(
+                              posts['sample']['url'],
+                              loadedCallback: () {
+                                print('Done');
+                              },
+                              loadFailedCallback: () {
+                                print('What happened to your internet');
+                              },
+                              useDiskCache: true,
+                            ),
+                            fit: BoxFit.cover,
+                            loadingWidgetBuilder: (_, double progress, __) {
+                              return Center(
+                                child:
+                                    CircularProgressIndicator(value: progress),
+                              );
+                            },
+                            placeholder: const Icon(Icons.image),
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Color.fromRGBO(37, 71, 123, 1),
                     ),
-                    child: TransitionToImage(
-                      image: AdvancedNetworkImage(
-                        posts['file']['url'],
-                        loadedCallback: () {
-                          print('Done');
-                        },
-                        loadFailedCallback: () {
-                          print('What happened to your internet');
-                        },
-                        useDiskCache: true,
+                    SizedBox(
+                        width: 10), // Jarak antara gambar dan informasi lainnya
+                    Flexible(
+                      flex: 2, // Proporsi informasi lainnya
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(37, 71, 123, 1),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Artist(artists: artist),
+                            Description(descriptions: posts['description']),
+                          ],
+                        ),
                       ),
-                      fit: BoxFit.cover,
-                      loadingWidgetBuilder: (_, double progress, __) {
-                        return Center(
-                          child: CircularProgressIndicator(value: progress),
-                        );
-                      },
-                      placeholder: const Icon(Icons.image),
                     ),
-                  ),
-                ),
-                Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                    ),
-                    child: Info(
-                        description: posts['description'],
-                        artist: posts['tags']['artist'].toString()))
-              ],
-            )
-          : CircularProgressIndicator(),
+                  ],
+                )
+              : CircularProgressIndicator(),
+    );
+  }
+
+  Widget buildErrorWidget() {
+    return Container(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              errorText!,
+              style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  errorText = null; // Hapus pesan kesalahan dan coba lagi
+                });
+                fetchData(); // Panggil fetchData() kembali
+              },
+              child: Text('Retry'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
