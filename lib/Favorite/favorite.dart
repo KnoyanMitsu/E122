@@ -72,8 +72,13 @@ class _HotPageState extends State<HotPage> {
     await fetchData();
   }
 
+  List<dynamic> filterNonNullSample(List<dynamic> posts) {
+    return posts.where((post) => post['sample']['url'] != null).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<dynamic> filteredPosts = filterNonNullSample(posts);
     return Scaffold(
       backgroundColor: Color.fromRGBO(2, 15, 35, 1),
       appBar: AppBar(
@@ -101,10 +106,10 @@ class _HotPageState extends State<HotPage> {
                 crossAxisCount: _getCrossAxisCount(context),
                 crossAxisSpacing: 8.0,
                 mainAxisSpacing: 8.0,
-                itemCount: posts.length,
+                itemCount: filteredPosts.length,
                 itemBuilder: (context, index) {
-                  double aspectRatio = posts[index]['sample']['width'] /
-                      posts[index]['sample']['height'];
+                  double aspectRatio = filteredPosts[index]['sample']['width'] /
+                      filteredPosts[index]['sample']['height'];
                   return AspectRatio(
                     aspectRatio: aspectRatio,
                     child: InkWell(
@@ -113,7 +118,8 @@ class _HotPageState extends State<HotPage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => DetailPage(
-                                  imageId: posts[index]['id'].toString())),
+                                  imageId:
+                                      filteredPosts[index]['id'].toString())),
                         );
                       }, // Tetapkan aspek rasio awal (misalnya 1:1)
                       child: Container(
@@ -127,7 +133,7 @@ class _HotPageState extends State<HotPage> {
                               child: ClipRRect(
                                 child: TransitionToImage(
                                   image: AdvancedNetworkImage(
-                                    posts[index]['sample']['url'],
+                                    filteredPosts[index]['sample']['url'],
                                     loadedCallback: () {
                                       print('Done');
                                     },

@@ -5,6 +5,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServices {
   static String baseUrl = "https://e926.net";
+  static String basicAuth = '';
+
+  static void setBasicAuth(String basicAuths) {
+    basicAuth = basicAuths;
+
+    _saveBasicAuth(basicAuths);
+  }
+
+  static Future<void> _saveBasicAuth(String basicAuths) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('basicAuth', basicAuths);
+  }
+
+  static Future<void> _loadBasicAuth() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    basicAuth = prefs.getString('basicAuth') ?? basicAuth;
+  }
 
   static Future<void> _saveBaseUrl(String newBaseUrl) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -22,12 +39,17 @@ class ApiServices {
   }
 
   static Future<dynamic> getResult(String name) async {
+    await _loadBasicAuth();
     await _loadBaseUrl(); // Load baseUrl on app start
     String link = ApiEndpoint.getResult(name);
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
+
         return jsonData['posts'];
       } else {
         throw Exception(
@@ -40,7 +62,10 @@ class ApiServices {
 
   static Future<dynamic> getResultNext(int _currentPage, String name) async {
     String link = ApiEndpoint.getResultNext(_currentPage, name);
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
@@ -56,7 +81,10 @@ class ApiServices {
 
   static Future<dynamic> getAutocomplete(String keyword) async {
     String link = ApiEndpoint.getkeyword(keyword);
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
@@ -72,7 +100,10 @@ class ApiServices {
 
   static Future<dynamic> getPosts() async {
     String link = ApiEndpoint.getpost();
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
@@ -88,7 +119,10 @@ class ApiServices {
 
   static Future<dynamic> getPostsNext(int _currentPage) async {
     String link = ApiEndpoint.getPostNext(_currentPage);
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
@@ -104,7 +138,10 @@ class ApiServices {
 
   static Future<dynamic> gethots() async {
     String link = ApiEndpoint.gethots();
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
@@ -120,7 +157,10 @@ class ApiServices {
 
   static Future<dynamic> gethotsNext(int _currentPage) async {
     String link = ApiEndpoint.gethotsNext(_currentPage);
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);
@@ -136,7 +176,10 @@ class ApiServices {
 
   static Future<dynamic> getDetail(String imageID) async {
     String link = ApiEndpoint.getDetail(imageID);
-    final response = await http.get(Uri.parse('$baseUrl$link'));
+    final response = await http.get(
+      Uri.parse('$baseUrl$link'),
+      headers: {'Authorization': basicAuth},
+    );
     try {
       if (response.statusCode == 200) {
         var jsonData = json.decode(response.body);

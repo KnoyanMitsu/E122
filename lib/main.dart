@@ -137,8 +137,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return true; // Lanjutkan navigasi kembali
   }
 
+// Fungsi untuk menyaring elemen yang memiliki sample['url'] tidak null
+  List<dynamic> filterNonNullSample(List<dynamic> posts) {
+    return posts.where((post) => post['sample']['url'] != null).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<dynamic> filteredPosts = filterNonNullSample(posts);
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
@@ -175,84 +181,92 @@ class _MyHomePageState extends State<MyHomePage> {
                         crossAxisCount: _getCrossAxisCount(context),
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
-                        itemCount: posts.length,
+                        itemCount: filteredPosts.length,
                         itemBuilder: (context, index) {
-                          double aspectRatio = posts[index]['sample']['width'] /
-                              posts[index]['sample']['height'];
+                          double aspectRatio = filteredPosts[index]['sample']
+                                  ['width'] /
+                              filteredPosts[index]['sample']['height'];
                           return AspectRatio(
                             aspectRatio: aspectRatio,
                             child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => DetailPage(
-                                          imageId:
-                                              posts[index]['id'].toString())),
-                                );
-                              }, // Tetapkan aspek rasio awal (misalnya 1:1)
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Color.fromRGBO(37, 71, 123, 1),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      child: ClipRRect(
-                                        child: TransitionToImage(
-                                          image: AdvancedNetworkImage(
-                                            posts[index]['sample']['url'],
-                                            loadedCallback: () {
-                                              print('Done');
-                                            },
-                                            loadFailedCallback: () {
-                                              print(
-                                                  'what happen your internet');
-                                            },
-                                            useDiskCache:
-                                                true, // Gunakan cache untuk mempercepat pengambilan gambar
-                                          ),
-                                          fit: BoxFit.cover,
-                                          loadingWidgetBuilder:
-                                              (_, double progress, __) {
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                  value: progress),
-                                            );
-                                          },
-                                          placeholder: const Icon(Icons.image),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => DetailPage(
+                                            imageId: filteredPosts[index]['id']
+                                                .toString())),
+                                  );
+                                }, // Tetapkan aspek rasio awal (misalnya 1:1)
+                                child: filteredPosts[index]['sample']['url'] !=
+                                        null
+                                    ? Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          color: Color.fromRGBO(37, 71, 123, 1),
                                         ),
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.arrow_upward,
-                                            color: Colors.green[200],
-                                          ),
-                                          onPressed: () {
-                                            // Aksi ketika tombol upvote ditekan
-                                          },
+                                        child: Column(
+                                          children: [
+                                            Expanded(
+                                              child: ClipRRect(
+                                                child: TransitionToImage(
+                                                  image: AdvancedNetworkImage(
+                                                    filteredPosts[index]
+                                                        ['sample']['url'],
+                                                    loadedCallback: () {
+                                                      print('Done');
+                                                    },
+                                                    loadFailedCallback: () {
+                                                      print(
+                                                          'what happen your internet');
+                                                    },
+                                                    useDiskCache:
+                                                        true, // Gunakan cache untuk mempercepat pengambilan gambar
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                  loadingWidgetBuilder:
+                                                      (_, double progress, __) {
+                                                    return Center(
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                              value: progress),
+                                                    );
+                                                  },
+                                                  placeholder:
+                                                      const Icon(Icons.image),
+                                                ),
+                                              ),
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.arrow_upward,
+                                                    color: Colors.green[200],
+                                                  ),
+                                                  onPressed: () {
+                                                    // Aksi ketika tombol upvote ditekan
+                                                  },
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.arrow_downward,
+                                                    color: Colors.red[200],
+                                                  ),
+                                                  onPressed: () {
+                                                    // Aksi ketika tombol downvote ditekan
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.arrow_downward,
-                                            color: Colors.red[200],
-                                          ),
-                                          onPressed: () {
-                                            // Aksi ketika tombol downvote ditekan
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                      )
+                                    : null),
                           );
                         },
                         staggeredTileBuilder: (int index) {
