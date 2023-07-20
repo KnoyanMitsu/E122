@@ -1,7 +1,6 @@
-# scrolling_dulu
+# E112
 
-A new Flutter project.
-
+Booru furry (e926)
 ## Getting Started
 
 This project is a starting point for a Flutter application.
