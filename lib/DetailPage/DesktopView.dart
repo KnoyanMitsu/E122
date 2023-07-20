@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_advanced_networkimage_2/provider.dart';
 import 'package:flutter_advanced_networkimage_2/transition.dart';
 import 'package:scrolling_dulu/data/service.dart';
+import 'FullWebm.dart';
 import 'Fullimage.dart';
 import 'Description.dart';
 import 'Artist.dart';
@@ -82,7 +83,9 @@ class _DesktopViewState extends State<DesktopView> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => FullImagePage(
+                              builder: (context) => _isWebM(posts['file']['url'])
+                          ? VideoPlayerWidget(imageUrl: posts['file']['url'])
+                          : FullImagePage(
                                 imageUrl: posts['file']['url'],
                               ),
                             ),
@@ -164,5 +167,8 @@ class _DesktopViewState extends State<DesktopView> {
         ),
       ),
     );
+  }
+    bool _isWebM(String url) {
+    return url.toLowerCase().endsWith('.webm');
   }
 }

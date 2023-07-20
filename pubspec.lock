@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  audio_video_progress_bar:
+    dependency: transitive
+    description:
+      name: audio_video_progress_bar
+      sha256: "7be62917604e19e3873e12c8025bbc6dbee5876e1fa4cd7772ea1d0eb0e88d99"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.0"
   autocomplete_textfield:
     dependency: "direct main"
     description:
@@ -49,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.1"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      sha256: "706b5707578e0c1b4b7550f64078f0a0f19dec3f50a178ffae7006b0a9ca58fb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -57,6 +73,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  dart_vlc:
+    dependency: "direct main"
+    description:
+      name: dart_vlc
+      sha256: f93499b938fbb6ce9eb3fb0368878cd18eac4e18ed45956731a0d6e758d75a34
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+  dart_vlc_ffi:
+    dependency: transitive
+    description:
+      name: dart_vlc_ffi
+      sha256: "670d4b27296935e4e4b8d903d6833c222fc94133bbd3e9fa36d8a2e7751a63d0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0+1"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -144,6 +176,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  html:
+    dependency: transitive
+    description:
+      name: html
+      sha256: "3a7812d5bcd2894edf53dfaf8cd640876cf6cef50a8f238745c8b8120ea74d3a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.15.4"
   http:
     dependency: "direct main"
     description:
@@ -192,6 +232,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.0"
+  media_kit:
+    dependency: "direct main"
+    description:
+      name: media_kit
+      sha256: "8c7d9417bed724a3fcaadd91c722fea042737cafb153aa1f1e6461a0fee683a3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
+  media_kit_libs_android_video:
+    dependency: "direct main"
+    description:
+      name: media_kit_libs_android_video
+      sha256: "228c3b182831e194bb178d4d22a1839af812c917cb76fe87d6fdc9ea4328dc81"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
+  media_kit_libs_linux:
+    dependency: "direct main"
+    description:
+      name: media_kit_libs_linux
+      sha256: "21acc71cbae3518b3aeef9023a6a3a3decb579a40153764333814987ccd61040"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
+  media_kit_native_event_loop:
+    dependency: "direct main"
+    description:
+      name: media_kit_native_event_loop
+      sha256: "5351f0c28124b5358756515d8619abad182cdefe967468d7fb5b274737cc2f59"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.6"
+  media_kit_video:
+    dependency: "direct main"
+    description:
+      name: media_kit_video
+      sha256: "1a870a3d731a9ce34e12ec5baed05b3081164f0c85b71baf05900ca47ee5639c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
   meta:
     dependency: transitive
     description:
@@ -352,6 +432,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
+  safe_local_storage:
+    dependency: transitive
+    description:
+      name: safe_local_storage
+      sha256: ede4eb6cb7d88a116b3d3bf1df70790b9e2038bc37cb19112e381217c74d9440
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
   salomon_bottom_bar:
     dependency: "direct main"
     description:
@@ -469,6 +557,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  synchronized:
+    dependency: transitive
+    description:
+      name: synchronized
+      sha256: "5fcbd27688af6082f5abd611af56ee575342c30e87541d0245f7ff99faa02c60"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   term_glyph:
     dependency: transitive
     description:
@@ -493,6 +589,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      sha256: d315be0f6641898b280ffa34e2ddb14f3d12b1a37882557869646e0cc363d0cc
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0+1"
+  uri_parser:
+    dependency: transitive
+    description:
+      name: uri_parser
+      sha256: "6543c9fd86d2862fac55d800a43e67c0dcd1a41677cb69c2f8edfe73bbcf1835"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   vector_math:
     dependency: transitive
     description:
@@ -501,6 +613,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  video_player:
+    dependency: "direct main"
+    description:
+      name: video_player
+      sha256: "3fd106c74da32f336dc7feb65021da9b0207cb3124392935f1552834f7cce822"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.0"
+  video_player_android:
+    dependency: transitive
+    description:
+      name: video_player_android
+      sha256: f338a5a396c845f4632959511cad3542cdf3167e1b2a1a948ef07f7123c03608
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.9"
+  video_player_avfoundation:
+    dependency: transitive
+    description:
+      name: video_player_avfoundation
+      sha256: f5f5b7fe8c865be8a57fe80c2dca130772e1db775b7af4e5c5aa1905069cfc6c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.9"
+  video_player_platform_interface:
+    dependency: transitive
+    description:
+      name: video_player_platform_interface
+      sha256: "1ca9acd7a0fb15fb1a990cb554e6f004465c6f37c99d2285766f08a4b2802988"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.2.0"
+  video_player_web:
+    dependency: transitive
+    description:
+      name: video_player_web
+      sha256: "44ce41424d104dfb7cf6982cc6b84af2b007a24d126406025bf40de5d481c74c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.16"
   win32:
     dependency: transitive
     description:
@@ -535,4 +687,4 @@ packages:
     version: "6.3.0"
 sdks:
   dart: ">=3.0.0 <4.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.7.0"

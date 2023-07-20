@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:video_player/video_player.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
 import 'dart:typed_data';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
 
-
-class FullImagePage extends StatefulWidget {
+class VideoPlayerWidget extends StatefulWidget {
   final String imageUrl;
 
-  const FullImagePage({Key? key, required this.imageUrl}) : super(key: key);
+  VideoPlayerWidget({required this.imageUrl});
 
   @override
-  _FullImagePageState createState() => _FullImagePageState();
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
 }
 
-class _FullImagePageState extends State<FullImagePage> {
+class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   bool _isLoading = false;
   Uint8List? _imageBytes;
   String? errorText;
@@ -25,6 +25,13 @@ class _FullImagePageState extends State<FullImagePage> {
   void initState() {
     super.initState();
     _loadImage();
+    // ignore: deprecated_member_use
+    _controller = VideoPlayerController.network(widget.imageUrl)
+      ..initialize().then((_) {
+        setState(() {
+          _controller.setLooping(true);
+        });
+      });
   }
 
   Future<void> _loadImage() async {
@@ -120,42 +127,88 @@ class _FullImagePageState extends State<FullImagePage> {
     }
   }
 
+  late VideoPlayerController _controller;
+  bool _isPlaying = false;
+
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
         backgroundColor: Color.fromRGBO(2, 15, 35, 1),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          color: Color.fromRGBO(135, 182, 255, 1),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        appBar: AppBar(
+          backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            color: Color.fromRGBO(135, 182, 255, 1),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          title: const Text(
+            'Webm',
+            style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+          ),
+          actions: [
+            IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: _isLoading ? null : _requestPermission,
+                color: Color.fromRGBO(135, 182, 255, 1)),
+          ],
         ),
-        title: const Text('Full Image',
-            style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
-        actions: [
-          IconButton(
-              icon: const Icon(Icons.download),
-              onPressed: _isLoading ? null : _requestPermission,
-              color: Color.fromRGBO(135, 182, 255, 1)),
-        ],
-      ),
-      body: errorText != null
-          ? buildErrorWidget()
-          : _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _imageBytes != null
-                  ? Center(
-                      child: Image.memory(
-                        _imageBytes!,
-                        fit: BoxFit.contain,
-                      ),
-                    )
-                  : const Center(child: Text('Failed to load image')),
-    );
+        body: (Platform.isAndroid)
+            ? errorText != null
+                ? buildErrorWidget()
+                : _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _imageBytes != null
+                        ? AspectRatio(
+                            aspectRatio: _controller.value.aspectRatio,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                VideoPlayer(_controller),
+                                if (!_isPlaying)
+                                  GestureDetector(
+                                    onTap: () {
+                                      _controller.play();
+                                      setState(() {
+                                        _isPlaying = true;
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.play_arrow,
+                                      size: 72,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          )
+                        : const Center(child: Text('Failed to load image'))
+            : errorText != null
+                ? buildErrorWidget()
+                : _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _imageBytes != null
+                        ? Center(
+                            child: Text(
+                              'Linux not support webm yet, the alternatively download it',
+                              style: TextStyle(
+                                  color: Color.fromRGBO(135, 182, 255, 1)),
+                            ),
+                          )
+                        : Center(
+                            child: Text(
+                              'Linux not support webm yet, the alternatively download it',
+                              style: TextStyle(
+                                  color: Color.fromRGBO(135, 182, 255, 1)),
+                            ),
+                          ));
   }
 
   Widget buildErrorWidget() {

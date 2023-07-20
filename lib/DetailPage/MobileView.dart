@@ -4,6 +4,7 @@ import 'package:flutter_advanced_networkimage_2/transition.dart';
 import '../data/service.dart';
 import 'Description.dart';
 import 'Artist.dart';
+import 'FullWebm.dart';
 import 'Fullimage.dart'; // Import halaman penuh gambar
 
 class MobileView extends StatefulWidget {
@@ -52,82 +53,83 @@ class _MobileViewState extends State<MobileView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            backgroundColor: Color.fromRGBO(2, 15, 35, 1),
-            appBar: AppBar(
-              backgroundColor: Color.fromRGBO(2, 15, 35, 1),
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                color: Color.fromRGBO(135, 182, 255, 1),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              title: const Text(
-                'Detail',
-                style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
-              ),
-            ),
-            body: errorText != null
-        ? buildErrorWidget() // Menampilkan widget pesan kesalahan
-        : posts.isNotEmpty
-                ? ListView(
-                    padding: EdgeInsets.all(0),
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FullImagePage(
-                                imageUrl: posts['file']['url'],
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Color.fromRGBO(37, 71, 123, 1),
+      backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          color: Color.fromRGBO(135, 182, 255, 1),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'Detail',
+          style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+        ),
+      ),
+      body: errorText != null
+          ? buildErrorWidget() // Menampilkan widget pesan kesalahan
+          : posts.isNotEmpty
+              ? ListView(
+                  padding: EdgeInsets.all(0),
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => _isWebM(posts['file']['url'])
+                                ? VideoPlayerWidget(
+                                    imageUrl: posts['file']['url'])
+                                : FullImagePage(
+                                    imageUrl: posts['file']['url'],
+                                  ),
                           ),
-                          child: TransitionToImage(
-                            image: AdvancedNetworkImage(
-                              posts['sample']['url'],
-                              loadedCallback: () {
-                                print('Done');
-                              },
-                              loadFailedCallback: () {
-                                print('What happened to your internet');
-                              },
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.contain,
-                            loadingWidgetBuilder: (_, double progress, __) {
-                              return Center(
-                                child:
-                                    CircularProgressIndicator(value: progress),
-                              );
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Color.fromRGBO(37, 71, 123, 1),
+                        ),
+                        child: TransitionToImage(
+                          image: AdvancedNetworkImage(
+                            posts['sample']['url'],
+                            loadedCallback: () {
+                              print('Done');
                             },
-                            placeholder: const Icon(Icons.image),
+                            loadFailedCallback: () {
+                              print('What happened to your internet');
+                            },
+                            useDiskCache: true,
                           ),
+                          fit: BoxFit.contain,
+                          loadingWidgetBuilder: (_, double progress, __) {
+                            return Center(
+                              child: CircularProgressIndicator(value: progress),
+                            );
+                          },
+                          placeholder: const Icon(Icons.image),
                         ),
                       ),
-                      SizedBox(height: 16),
-                      Container(
-                          decoration: BoxDecoration(
-                              color: Color.fromRGBO(37, 71, 123, 1),
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Artist(
-                                  artists: posts['tags']['artist'].toString()),
-                              Description(descriptions: posts['description']),
-                            ],
-                          ))
-                    ],
-                  )
-                : CircularProgressIndicator(),
-          );
+                    ),
+                    SizedBox(height: 16),
+                    Container(
+                        decoration: BoxDecoration(
+                            color: Color.fromRGBO(37, 71, 123, 1),
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Artist(artists: posts['tags']['artist'].toString()),
+                            Description(descriptions: posts['description']),
+                          ],
+                        ))
+                  ],
+                )
+              : CircularProgressIndicator(),
+    );
   }
 
   Widget buildErrorWidget() {
@@ -154,5 +156,9 @@ class _MobileViewState extends State<MobileView> {
         ),
       ),
     );
+  }
+
+  bool _isWebM(String url) {
+    return url.toLowerCase().endsWith('.webm');
   }
 }
