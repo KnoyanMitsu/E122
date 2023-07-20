@@ -1,6 +1,6 @@
 # E112
 
-Booru furry (e926)
+Booru furry (e926) with flutter (android and linux)
 ## Getting Started
 
 This project is a starting point for a Flutter application.
