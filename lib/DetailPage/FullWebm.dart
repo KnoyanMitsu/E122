@@ -58,7 +58,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   Future<void> _saveImageToDevice() async {
     try {
       final String appName = 'E112';
-      Directory appDir;
       if (Platform.isAndroid) {
         final String picturesDirectory =
             '/storage/emulated/0/Pictures/$appName';

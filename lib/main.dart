@@ -8,8 +8,6 @@ import 'package:scrolling_dulu/data/service.dart';
 import 'package:scrolling_dulu/settings/settings.dart';
 import 'Favorite/favorite.dart';
 import 'Pools/Pools.dart';
-import 'package:flutter_advanced_networkimage_2/provider.dart';
-import 'package:flutter_advanced_networkimage_2/transition.dart';
 import 'DetailPage/DetailPage.dart';
 
 void main() {

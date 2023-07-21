@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scrolling_dulu/DetailPage/Tags/tagspage.dart';
-import 'package:scrolling_dulu/Search/resultpage.dart';
 import 'dart:async';
 
 import '../../data/service.dart';

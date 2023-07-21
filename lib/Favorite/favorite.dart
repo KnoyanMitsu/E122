@@ -2,8 +2,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:flutter_advanced_networkimage_2/provider.dart';
-import 'package:flutter_advanced_networkimage_2/transition.dart';
 import 'package:scrolling_dulu/data/service.dart';
 import '../DetailPage/DetailPage.dart';
 

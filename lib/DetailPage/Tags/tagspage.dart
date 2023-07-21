@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:scrolling_dulu/DetailPage/DetailPage.dart';
-import 'package:flutter_advanced_networkimage_2/provider.dart';
-import 'package:flutter_advanced_networkimage_2/transition.dart';
 import 'package:scrolling_dulu/main.dart';
 import '../../Search/searchpage.dart';
 import '../../data/service.dart';
