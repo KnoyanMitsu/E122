@@ -164,7 +164,7 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
                         ))
                   ],
                 )
-              : const CircularProgressIndicator(),
+              : const Center(child: CircularProgressIndicator()),
     );
   }
 

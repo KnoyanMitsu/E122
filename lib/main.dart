@@ -65,9 +65,11 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage>
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   List<dynamic> posts = [];
-
+  @override
+  bool get wantKeepAlive => true;
   String? errorText;
   int _getCrossAxisCount(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -146,6 +148,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     List<dynamic> filteredPosts = filterNonNullSample(posts);
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -155,138 +158,168 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           children: [
             // Halaman "Home"
             Scaffold(
-              backgroundColor: Colors.black,
-              appBar: AppBar(
-                backgroundColor: const Color.fromRGBO(2, 15, 35, 1),
-                title: const Text('Home',
-                    style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
-                actions: <Widget>[
-                  IconButton(
-                    icon: const Icon(Icons.settings),
-                    tooltip: 'This Settings',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SettingsPage()),
-                      );
-                    },
-                    color: const Color.fromRGBO(135, 182, 255, 1),
-                  ),
-                ],
-              ),
-              body: RefreshIndicator(
-                onRefresh: refreshData,
-                child: errorText != null
-                    ? buildErrorWidget() // Menampilkan widget pesan kesalahan
-                    : StaggeredGridView.countBuilder(
-                        controller: _scrollController,
-                        crossAxisCount: _getCrossAxisCount(context),
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 8.0,
-                        itemCount: filteredPosts.length,
-                        itemBuilder: (context, index) {
-                          double aspectRatio = filteredPosts[index]['sample']
-                                  ['width'] /
-                              filteredPosts[index]['sample']['height'];
-                          return AspectRatio(
-                            aspectRatio: aspectRatio,
-                            child: InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => DetailPage(
-                                            imageId: filteredPosts[index]['id']
-                                                .toString())),
-                                  );
-                                }, // Tetapkan aspek rasio awal (misalnya 1:1)
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: const Color.fromRGBO(37, 71, 123, 1),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Expanded(
-                                        child: ClipRRect(
-                                          child: _isGIF(filteredPosts[index]
-                                                  ['sample']['url'])
-                                              ? ExtendedImage.network(
-                                                  filteredPosts[index]['sample']
-                                                      ['url'],
-                                                  fit: BoxFit.cover,
-                                                  cache: true,
-                                                  enableLoadState: false,
-                                                  loadStateChanged:
-                                                      (ExtendedImageState
-                                                          state) {
-                                                    switch (state
-                                                        .extendedImageLoadState) {
-                                                      case LoadState.loading:
-                                                        return Center(
-                                                          child:
-                                                              CircularProgressIndicator(),
-                                                        );
-                                                      case LoadState.completed:
-                                                        return ExtendedRawImage(
-                                                          image: state
-                                                              .extendedImageInfo
-                                                              ?.image,
-                                                          fit: BoxFit.cover,
-                                                        );
-                                                      case LoadState.failed:
-                                                        return Center(
-                                                          child:
-                                                              Icon(Icons.error),
-                                                        );
-                                                    }
-                                                  },
-                                                )
-                                              : GifImage(
-                                                  controller: controller,
-                                                  image: NetworkImage(
-                                                    filteredPosts[index]
-                                                        ['sample']['url'],
+                backgroundColor: Colors.black,
+                appBar: AppBar(
+                  backgroundColor: const Color.fromRGBO(2, 15, 35, 1),
+                  title: const Text('Home',
+                      style:
+                          TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
+                  actions: <Widget>[
+                    IconButton(
+                      icon: const Icon(Icons.settings),
+                      tooltip: 'This Settings',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SettingsPage()),
+                        );
+                      },
+                      color: const Color.fromRGBO(135, 182, 255, 1),
+                    ),
+                  ],
+                ),
+                body: errorText != null
+                    ? buildErrorWidget()
+                    : posts.isNotEmpty
+                        ? RefreshIndicator(
+                            onRefresh: refreshData,
+                            child: errorText != null
+                                ? buildErrorWidget() // Menampilkan widget pesan kesalahan
+                                : StaggeredGridView.countBuilder(
+                                    controller: _scrollController,
+                                    crossAxisCount: _getCrossAxisCount(context),
+                                    crossAxisSpacing: 8.0,
+                                    mainAxisSpacing: 8.0,
+                                    itemCount: filteredPosts.length,
+                                    itemBuilder: (context, index) {
+                                      double aspectRatio = filteredPosts[index]
+                                              ['sample']['width'] /
+                                          filteredPosts[index]['sample']
+                                              ['height'];
+                                      return AspectRatio(
+                                        aspectRatio: aspectRatio,
+                                        child: InkWell(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DetailPage(
+                                                            imageId: filteredPosts[
+                                                                    index]['id']
+                                                                .toString())),
+                                              );
+                                            }, // Tetapkan aspek rasio awal (misalnya 1:1)
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                color: const Color.fromRGBO(
+                                                    37, 71, 123, 1),
+                                              ),
+                                              child: Column(
+                                                children: [
+                                                  Expanded(
+                                                    child: ClipRRect(
+                                                      child:
+                                                          _isGIF(filteredPosts[
+                                                                          index]
+                                                                      ['sample']
+                                                                  ['url'])
+                                                              ? ExtendedImage
+                                                                  .network(
+                                                                  filteredPosts[
+                                                                          index]
+                                                                      [
+                                                                      'sample']['url'],
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  cache: true,
+                                                                  enableLoadState:
+                                                                      false,
+                                                                  loadStateChanged:
+                                                                      (ExtendedImageState
+                                                                          state) {
+                                                                    switch (state
+                                                                        .extendedImageLoadState) {
+                                                                      case LoadState
+                                                                            .loading:
+                                                                        return Center(
+                                                                          child:
+                                                                              CircularProgressIndicator(),
+                                                                        );
+                                                                      case LoadState
+                                                                            .completed:
+                                                                        return ExtendedRawImage(
+                                                                          image: state
+                                                                              .extendedImageInfo
+                                                                              ?.image,
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                        );
+                                                                      case LoadState
+                                                                            .failed:
+                                                                        return Center(
+                                                                          child:
+                                                                              Icon(Icons.error),
+                                                                        );
+                                                                    }
+                                                                  },
+                                                                )
+                                                              : GifImage(
+                                                                  controller:
+                                                                      controller,
+                                                                  image:
+                                                                      NetworkImage(
+                                                                    filteredPosts[index]
+                                                                            [
+                                                                            'sample']
+                                                                        ['url'],
+                                                                  ),
+                                                                ),
+                                                    ),
                                                   ),
-                                                ),
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.arrow_upward,
-                                              color: Colors.green[200],
-                                            ),
-                                            onPressed: () {
-                                              // Aksi ketika tombol upvote ditekan
-                                            },
-                                          ),
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.arrow_downward,
-                                              color: Colors.red[200],
-                                            ),
-                                            onPressed: () {
-                                              // Aksi ketika tombol downvote ditekan
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: Icon(
+                                                          Icons.arrow_upward,
+                                                          color:
+                                                              Colors.green[200],
+                                                        ),
+                                                        onPressed: () {
+                                                          // Aksi ketika tombol upvote ditekan
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        icon: Icon(
+                                                          Icons.arrow_downward,
+                                                          color:
+                                                              Colors.red[200],
+                                                        ),
+                                                        onPressed: () {
+                                                          // Aksi ketika tombol downvote ditekan
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            )),
+                                      );
+                                    },
+                                    staggeredTileBuilder: (int index) {
+                                      new StaggeredTile.count(
+                                          2, index.isEven ? 2 : 1);
+                                      return const StaggeredTile.fit(1);
+                                    },
                                   ),
-                                )),
-                          );
-                        },
-                        staggeredTileBuilder: (int index) {
-                          new StaggeredTile.count(2, index.isEven ? 2 : 1);
-                          return const StaggeredTile.fit(1);
-                        },
-                      ),
-              ),
-            ),
+                          )
+                        : Center(child: CircularProgressIndicator())),
             HotPage(),
             PoolsPage(),
           ],

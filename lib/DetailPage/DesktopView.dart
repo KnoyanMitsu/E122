@@ -79,7 +79,7 @@ class _DesktopViewState extends State<DesktopView>
         ),
       ),
       body: errorText != null
-          ? buildErrorWidget() // Menampilkan widget pesan kesalahan
+          ? buildErrorWidget()
           : posts.isNotEmpty
               ? Row(
                   children: [
@@ -184,7 +184,7 @@ class _DesktopViewState extends State<DesktopView>
                     )
                   ],
                 )
-              : CircularProgressIndicator(),
+              : const Center(child: CircularProgressIndicator()),
     );
   }
 
