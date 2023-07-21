@@ -1,4 +1,6 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_advanced_networkimage_2/provider.dart';
 import 'package:flutter_advanced_networkimage_2/transition.dart';
@@ -12,8 +14,9 @@ class HotPage extends StatefulWidget {
 
 String? errorText;
 
-class _HotPageState extends State<HotPage> {
+class _HotPageState extends State<HotPage> with TickerProviderStateMixin {
   List<dynamic> posts = [];
+  late FlutterGifController controller;
   var urldata =
       Uri.parse('https://e926.net/posts.json?d=1&page=1&tags=order%3Arank');
   ScrollController _scrollController = ScrollController();
@@ -21,6 +24,7 @@ class _HotPageState extends State<HotPage> {
 
   @override
   void initState() {
+    controller = FlutterGifController(vsync: this);
     super.initState();
     _scrollController.addListener(_scrollListener);
     fetchData();
@@ -80,9 +84,9 @@ class _HotPageState extends State<HotPage> {
   Widget build(BuildContext context) {
     List<dynamic> filteredPosts = filterNonNullSample(posts);
     return Scaffold(
-      backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+      backgroundColor: const Color.fromRGBO(2, 15, 35, 1),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+        backgroundColor: const Color.fromRGBO(2, 15, 35, 1),
         title: const Text('Hot',
             style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
         actions: <Widget>[
@@ -93,7 +97,7 @@ class _HotPageState extends State<HotPage> {
               ScaffoldMessenger.of(context)
                   .showSnackBar(const SnackBar(content: Text('This Settings')));
             },
-            color: Color.fromRGBO(135, 182, 255, 1),
+            color: const Color.fromRGBO(135, 182, 255, 1),
           ),
         ],
       ),
@@ -125,34 +129,47 @@ class _HotPageState extends State<HotPage> {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
-                          color: Color.fromRGBO(37, 71, 123, 1),
+                          color: const Color.fromRGBO(37, 71, 123, 1),
                         ),
                         child: Column(
                           children: [
                             Expanded(
                               child: ClipRRect(
-                                child: TransitionToImage(
-                                  image: AdvancedNetworkImage(
-                                    filteredPosts[index]['sample']['url'],
-                                    loadedCallback: () {
-                                      print('Done');
-                                    },
-                                    loadFailedCallback: () {
-                                      print('what happen your internet');
-                                    },
-                                    useDiskCache:
-                                        true, // Gunakan cache untuk mempercepat pengambilan gambar
-                                  ),
-                                  fit: BoxFit.cover,
-                                  loadingWidgetBuilder:
-                                      (_, double progress, __) {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                          value: progress),
-                                    );
-                                  },
-                                  placeholder: const Icon(Icons.image),
-                                ),
+                                child: _isGIF(
+                                        filteredPosts[index]['sample']['url'])
+                                    ? ExtendedImage.network(
+                                        filteredPosts[index]['sample']['url'],
+                                        fit: BoxFit.cover,
+                                        cache: true,
+                                        enableLoadState: false,
+                                        loadStateChanged:
+                                            (ExtendedImageState state) {
+                                          switch (
+                                              state.extendedImageLoadState) {
+                                            case LoadState.loading:
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            case LoadState.completed:
+                                              return ExtendedRawImage(
+                                                image: state
+                                                    .extendedImageInfo?.image,
+                                                fit: BoxFit.cover,
+                                              );
+                                            case LoadState.failed:
+                                              return Center(
+                                                child: Icon(Icons.error),
+                                              );
+                                          }
+                                        },
+                                      )
+                                    : GifImage(
+                                        controller: controller,
+                                        image: NetworkImage(
+                                          filteredPosts[index]['sample']['url'],
+                                        ),
+                                      ),
                               ),
                             ),
                             Row(
@@ -186,7 +203,7 @@ class _HotPageState extends State<HotPage> {
                 },
                 staggeredTileBuilder: (int index) {
                   new StaggeredTile.count(2, index.isEven ? 2 : 1);
-                  return StaggeredTile.fit(1);
+                  return const StaggeredTile.fit(1);
                 },
               ),
             ),
@@ -202,7 +219,7 @@ class _HotPageState extends State<HotPage> {
           children: [
             Text(
               errorText!,
-              style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+              style: const TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -211,11 +228,15 @@ class _HotPageState extends State<HotPage> {
                 });
                 fetchData(); // Panggil fetchData() kembali
               },
-              child: Text('Retry'),
+              child: const Text('Retry'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  bool _isGIF(String url) {
+    return url.toLowerCase().endsWith('.gif');
   }
 }

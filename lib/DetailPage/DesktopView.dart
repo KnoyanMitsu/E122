@@ -1,7 +1,12 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_advanced_networkimage_2/provider.dart';
-import 'package:flutter_advanced_networkimage_2/transition.dart';
+import 'package:flutter_gif/flutter_gif.dart';
+import 'package:scrolling_dulu/DetailPage/Tags/Artist.dart';
+import 'package:scrolling_dulu/DetailPage/Tags/Character.dart';
+import 'package:scrolling_dulu/DetailPage/Tags/Copyright.dart';
+import 'package:scrolling_dulu/DetailPage/Tags/General.dart';
+import 'package:scrolling_dulu/DetailPage/Tags/Species.dart';
 import 'package:scrolling_dulu/data/service.dart';
 import 'FullWebm.dart';
 import 'Fullimage.dart';
@@ -17,12 +22,15 @@ class DesktopView extends StatefulWidget {
   _DesktopViewState createState() => _DesktopViewState();
 }
 
-class _DesktopViewState extends State<DesktopView> {
+class _DesktopViewState extends State<DesktopView>
+    with TickerProviderStateMixin {
+  late FlutterGifController controller;
   late String imageId;
   String? errorText;
   @override
   void initState() {
     super.initState();
+    controller = FlutterGifController(vsync: this);
     imageId = widget.imageId;
     fetchData();
   }
@@ -83,11 +91,13 @@ class _DesktopViewState extends State<DesktopView> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => _isWebM(posts['file']['url'])
-                          ? VideoPlayerWidget(imageUrl: posts['file']['url'])
-                          : FullImagePage(
-                                imageUrl: posts['file']['url'],
-                              ),
+                              builder: (context) =>
+                                  _isWebM(posts['file']['url'])
+                                      ? VideoPlayerWidget(
+                                          imageUrl: posts['file']['url'])
+                                      : FullImagePage(
+                                          imageUrl: posts['file']['url'],
+                                        ),
                             ),
                           );
                         },
@@ -96,47 +106,82 @@ class _DesktopViewState extends State<DesktopView> {
                             borderRadius: BorderRadius.circular(5),
                             color: Color.fromRGBO(37, 71, 123, 1),
                           ),
-                          child: TransitionToImage(
-                            image: AdvancedNetworkImage(
-                              posts['sample']['url'],
-                              loadedCallback: () {
-                                print('Done');
-                              },
-                              loadFailedCallback: () {
-                                print('What happened to your internet');
-                              },
-                              useDiskCache: true,
-                            ),
-                            fit: BoxFit.cover,
-                            loadingWidgetBuilder: (_, double progress, __) {
-                              return Center(
-                                child:
-                                    CircularProgressIndicator(value: progress),
-                              );
-                            },
-                            placeholder: const Icon(Icons.image),
-                          ),
+                          child: _isGIF(posts['sample']['url'])
+                              ? ExtendedImage.network(
+                                  posts['sample']['url'],
+                                  fit: BoxFit.cover,
+                                  cache: true,
+                                  enableLoadState: false,
+                                  loadStateChanged: (ExtendedImageState state) {
+                                    switch (state.extendedImageLoadState) {
+                                      case LoadState.loading:
+                                        return Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      case LoadState.completed:
+                                        return ExtendedRawImage(
+                                          image: state.extendedImageInfo?.image,
+                                          fit: BoxFit.cover,
+                                        );
+                                      case LoadState.failed:
+                                        return Center(
+                                          child: Icon(Icons.error),
+                                        );
+                                    }
+                                  },
+                                )
+                              : GifImage(
+                                  controller: controller,
+                                  image: NetworkImage(
+                                    posts['sample']['url'],
+                                  ),
+                                ),
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                         width: 10), // Jarak antara gambar dan informasi lainnya
                     Flexible(
                       flex: 2, // Proporsi informasi lainnya
                       child: Container(
+                        padding: const EdgeInsets.all(20.0),
+                        height: double.infinity,
                         decoration: BoxDecoration(
-                          color: Color.fromRGBO(37, 71, 123, 1),
+                          color: const Color.fromRGBO(37, 71, 123, 1),
                           borderRadius: BorderRadius.circular(5),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Artist(artists: artist),
-                            Description(descriptions: posts['description']),
-                          ],
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Artist(artists: artist),
+                              const SizedBox(height: 10),
+                              const Text(
+                                "Description:",
+                                style: TextStyle(
+                                    color: Color.fromRGBO(135, 182, 255, 1),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 5),
+                              Description(descriptions: posts['description']),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              ListArtist(imageId: imageId),
+                              const SizedBox(height: 5),
+                              ListGeneral(imageId: imageId),
+                              const SizedBox(height: 5),
+                              ListSpecies(imageId: imageId),
+                              const SizedBox(height: 5),
+                              ListCopyright(imageId: imageId),
+                              const SizedBox(height: 5),
+                              ListCharacter(imageId: imageId)
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                    )
                   ],
                 )
               : CircularProgressIndicator(),
@@ -168,7 +213,12 @@ class _DesktopViewState extends State<DesktopView> {
       ),
     );
   }
-    bool _isWebM(String url) {
+
+  bool _isWebM(String url) {
     return url.toLowerCase().endsWith('.webm');
+  }
+
+  bool _isGIF(String url) {
+    return url.toLowerCase().endsWith('.gif');
   }
 }

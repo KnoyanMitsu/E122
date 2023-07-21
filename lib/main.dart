@@ -1,4 +1,6 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:scrolling_dulu/Search/searchpage.dart';
@@ -38,8 +40,8 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 7, 18, 52)),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 7, 18, 52)),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Container'),
@@ -65,8 +67,9 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<dynamic> posts = [];
+
   String? errorText;
   int _getCrossAxisCount(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -79,9 +82,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   ScrollController _scrollController = ScrollController();
   int _currentPage = 1; // Halaman saat ini
-
+  late FlutterGifController controller;
   @override
   void initState() {
+    controller = FlutterGifController(vsync: this);
     super.initState();
     _scrollController.addListener(_scrollListener);
     fetchData();
@@ -155,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Scaffold(
               backgroundColor: Colors.black,
               appBar: AppBar(
-                backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+                backgroundColor: const Color.fromRGBO(2, 15, 35, 1),
                 title: const Text('Home',
                     style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
                 actions: <Widget>[
@@ -168,7 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         MaterialPageRoute(builder: (context) => SettingsPage()),
                       );
                     },
-                    color: Color.fromRGBO(135, 182, 255, 1),
+                    color: const Color.fromRGBO(135, 182, 255, 1),
                   ),
                 ],
               ),
@@ -198,80 +202,89 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 .toString())),
                                   );
                                 }, // Tetapkan aspek rasio awal (misalnya 1:1)
-                                child: filteredPosts[index]['sample']['url'] !=
-                                        null
-                                    ? Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          color: Color.fromRGBO(37, 71, 123, 1),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            Expanded(
-                                              child: ClipRRect(
-                                                child: TransitionToImage(
-                                                  image: AdvancedNetworkImage(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: const Color.fromRGBO(37, 71, 123, 1),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: ClipRRect(
+                                          child: _isGIF(filteredPosts[index]
+                                                  ['sample']['url'])
+                                              ? ExtendedImage.network(
+                                                  filteredPosts[index]['sample']
+                                                      ['url'],
+                                                  fit: BoxFit.cover,
+                                                  cache: true,
+                                                  enableLoadState: false,
+                                                  loadStateChanged:
+                                                      (ExtendedImageState
+                                                          state) {
+                                                    switch (state
+                                                        .extendedImageLoadState) {
+                                                      case LoadState.loading:
+                                                        return Center(
+                                                          child:
+                                                              CircularProgressIndicator(),
+                                                        );
+                                                      case LoadState.completed:
+                                                        return ExtendedRawImage(
+                                                          image: state
+                                                              .extendedImageInfo
+                                                              ?.image,
+                                                          fit: BoxFit.cover,
+                                                        );
+                                                      case LoadState.failed:
+                                                        return Center(
+                                                          child:
+                                                              Icon(Icons.error),
+                                                        );
+                                                    }
+                                                  },
+                                                )
+                                              : GifImage(
+                                                  controller: controller,
+                                                  image: NetworkImage(
                                                     filteredPosts[index]
                                                         ['sample']['url'],
-                                                    loadedCallback: () {
-                                                      print('Done');
-                                                    },
-                                                    loadFailedCallback: () {
-                                                      print(
-                                                          'what happen your internet');
-                                                    },
-                                                    useDiskCache:
-                                                        true, // Gunakan cache untuk mempercepat pengambilan gambar
                                                   ),
-                                                  fit: BoxFit.cover,
-                                                  loadingWidgetBuilder:
-                                                      (_, double progress, __) {
-                                                    return Center(
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                              value: progress),
-                                                    );
-                                                  },
-                                                  placeholder:
-                                                      const Icon(Icons.image),
                                                 ),
-                                              ),
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.arrow_upward,
-                                                    color: Colors.green[200],
-                                                  ),
-                                                  onPressed: () {
-                                                    // Aksi ketika tombol upvote ditekan
-                                                  },
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.arrow_downward,
-                                                    color: Colors.red[200],
-                                                  ),
-                                                  onPressed: () {
-                                                    // Aksi ketika tombol downvote ditekan
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ],
                                         ),
-                                      )
-                                    : null),
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.arrow_upward,
+                                              color: Colors.green[200],
+                                            ),
+                                            onPressed: () {
+                                              // Aksi ketika tombol upvote ditekan
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.arrow_downward,
+                                              color: Colors.red[200],
+                                            ),
+                                            onPressed: () {
+                                              // Aksi ketika tombol downvote ditekan
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                )),
                           );
                         },
                         staggeredTileBuilder: (int index) {
                           new StaggeredTile.count(2, index.isEven ? 2 : 1);
-                          return StaggeredTile.fit(1);
+                          return const StaggeredTile.fit(1);
                         },
                       ),
               ),
@@ -287,13 +300,13 @@ class _MyHomePageState extends State<MyHomePage> {
               MaterialPageRoute(builder: (context) => SearchPage()),
             );
           },
-          backgroundColor: Color.fromRGBO(53, 99, 169, 1),
+          backgroundColor: const Color.fromRGBO(53, 99, 169, 1),
           child:
               const Icon(Icons.search, color: Color.fromRGBO(135, 182, 255, 1)),
         ),
         bottomNavigationBar: SalomonBottomBar(
-          margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+          margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+          backgroundColor: const Color.fromRGBO(2, 15, 35, 1),
           currentIndex: _currentIndex,
           onTap: (index) {
             setState(() {
@@ -302,24 +315,25 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           items: [
             SalomonBottomBarItem(
-              icon: Icon(Icons.home, color: Color.fromRGBO(135, 182, 255, 1)),
-              title: Text('Home',
+              icon: const Icon(Icons.home,
+                  color: Color.fromRGBO(135, 182, 255, 1)),
+              title: const Text('Home',
                   style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
-              selectedColor: Color.fromRGBO(53, 99, 169, 1),
+              selectedColor: const Color.fromRGBO(53, 99, 169, 1),
             ),
             SalomonBottomBarItem(
-              icon: Icon(Icons.local_fire_department,
+              icon: const Icon(Icons.local_fire_department,
                   color: Color.fromRGBO(135, 182, 255, 1)),
-              title: Text('Hot',
+              title: const Text('Hot',
                   style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
-              selectedColor: Color.fromRGBO(53, 99, 169, 1),
+              selectedColor: const Color.fromRGBO(53, 99, 169, 1),
             ),
             SalomonBottomBarItem(
-              icon: Icon(Icons.menu_book_outlined,
+              icon: const Icon(Icons.menu_book_outlined,
                   color: Color.fromRGBO(135, 182, 255, 1)),
-              title: Text('Pools',
+              title: const Text('Pools',
                   style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
-              selectedColor: Color.fromRGBO(53, 99, 169, 1),
+              selectedColor: const Color.fromRGBO(53, 99, 169, 1),
             ),
           ],
         ),
@@ -336,7 +350,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Text(
               errorText!,
-              style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+              style: const TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -345,11 +359,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
                 fetchData(); // Panggil fetchData() kembali
               },
-              child: Text('Retry'),
+              child: const Text('Retry'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  bool _isGIF(String url) {
+    return url.toLowerCase().endsWith('.gif');
   }
 }

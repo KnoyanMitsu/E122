@@ -7,20 +7,25 @@ class Description extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Description",
-          style: TextStyle(
-              color: Color.fromRGBO(135, 182, 255, 1),
-              fontWeight: FontWeight.bold),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 30, 58, 96),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      height: 300,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              descriptions,
+              style: const TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+            ),
+          ],
         ),
-        Text(
-          descriptions,
-          style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
-        ),
-      ],
+      ),
     );
   }
 }

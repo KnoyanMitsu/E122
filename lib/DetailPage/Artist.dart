@@ -10,15 +10,15 @@ class Artist extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Artist",
+        const Text(
+          "Artist:",
           style: TextStyle(
               color: Color.fromRGBO(135, 182, 255, 1),
               fontWeight: FontWeight.bold),
         ),
         Text(
           artists,
-          style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+          style: const TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
         ),
       ],
     );

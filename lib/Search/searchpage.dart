@@ -46,13 +46,13 @@ class _SearchPageState extends State<SearchPage> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          color: Color.fromRGBO(135, 182, 255, 1),
+          icon: const Icon(Icons.arrow_back),
+          color: const Color.fromRGBO(135, 182, 255, 1),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        backgroundColor: Color.fromRGBO(2, 15, 35, 1),
+        backgroundColor: const Color.fromRGBO(2, 15, 35, 1),
         title: const Text('Search',
             style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1))),
       ),
@@ -63,12 +63,12 @@ class _SearchPageState extends State<SearchPage> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: TextField(
-                    style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+                    style: const TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
                     onChanged: _onSearchQueryChanged,
                     onSubmitted: (value) {
                       _searchTag(value);
                     },
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Search',
                       labelStyle:
                           TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
@@ -86,7 +86,7 @@ class _SearchPageState extends State<SearchPage> {
                       final suggestion = _suggestions[index];
                       return ListTile(
                         title: Text(suggestion,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: Color.fromRGBO(135, 182, 255, 1))),
                         onTap: () {
                           _searchTag(suggestion);
@@ -116,7 +116,7 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             Text(
               errorText!,
-              style: TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
+              style: const TextStyle(color: Color.fromRGBO(135, 182, 255, 1)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -125,7 +125,7 @@ class _SearchPageState extends State<SearchPage> {
                 });
                 _fetchSuggestions(); // Panggil fetchData() kembali
               },
-              child: Text('Retry'),
+              child: const Text('Retry'),
             ),
           ],
         ),

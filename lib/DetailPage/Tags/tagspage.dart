@@ -3,23 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gif/flutter_gif.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:scrolling_dulu/DetailPage/DetailPage.dart';
+import 'package:flutter_advanced_networkimage_2/provider.dart';
+import 'package:flutter_advanced_networkimage_2/transition.dart';
 import 'package:scrolling_dulu/main.dart';
-import 'dart:async';
-import '../data/service.dart';
+import '../../Search/searchpage.dart';
+import '../../data/service.dart';
 
-class ResultPage extends StatefulWidget {
+class TagsPage extends StatefulWidget {
   final String name;
 
-  const ResultPage({Key? key, required this.name}) : super(key: key);
+  const TagsPage({Key? key, required this.name}) : super(key: key);
 
   @override
-  State<ResultPage> createState() => _ResultPageState();
+  State<TagsPage> createState() => _TagsPageState();
 }
 
-class _ResultPageState extends State<ResultPage> with TickerProviderStateMixin {
+class _TagsPageState extends State<TagsPage> with TickerProviderStateMixin {
   late String name;
-  Timer? _debounce;
-  int _debounceDelay = 1000;
   List<dynamic> posts = [];
   String? errorText;
   int _getCrossAxisCount(BuildContext context) {
@@ -36,8 +36,8 @@ class _ResultPageState extends State<ResultPage> with TickerProviderStateMixin {
   late FlutterGifController controller;
   @override
   void initState() {
-    super.initState();
     controller = FlutterGifController(vsync: this);
+    super.initState();
     _scrollController.addListener(_scrollListener);
     name = widget.name;
     fetchData();
@@ -59,18 +59,14 @@ class _ResultPageState extends State<ResultPage> with TickerProviderStateMixin {
   }
 
   Future<void> _loadMoreData() async {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    // Tingkatkan nomor halaman saat ini
+    _currentPage++;
 
-    _debounce = Timer(Duration(milliseconds: _debounceDelay), () async {
-      // Tingkatkan nomor halaman saat ini
-      _currentPage++;
+    // Lakukan permintaan HTTP untuk memuat data halaman selanjutnya
+    var newPosts = await ApiServices.getResultNext(_currentPage, name);
 
-      // Lakukan permintaan HTTP untuk memuat data halaman selanjutnya
-      var newPosts = await ApiServices.getResultNext(_currentPage, name);
-
-      setState(() {
-        posts.addAll(newPosts); // Tambahkan data baru ke daftar yang ada
-      });
+    setState(() {
+      posts.addAll(newPosts); // Tambahkan data baru ke daftar yang ada
     });
   }
 
@@ -252,6 +248,17 @@ class _ResultPageState extends State<ResultPage> with TickerProviderStateMixin {
                     return const StaggeredTile.fit(1);
                   },
                 ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchPage()),
+            );
+          },
+          backgroundColor: const Color.fromRGBO(53, 99, 169, 1),
+          child:
+              const Icon(Icons.search, color: Color.fromRGBO(135, 182, 255, 1)),
         ),
       ),
     );
