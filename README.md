@@ -3,7 +3,7 @@
 Booru furry (e926) with flutter (android and linux)
 ## Why i doing this
 
-Because i very beginner flutter so learn it
+Because i want learn framework flutter so i make this
 
 ## Build
 
