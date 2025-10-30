@@ -1,7 +1,7 @@
 # E112
 
 > [!WARNING]
-> This repository will become archive. whyy??... bruhh this code very ugly LMAO. i make new repository later with good code
+> This repository will become archive. This code very shit.
 
 Booru furry (e926) with flutter (android and linux)
 ## Why i doing this
